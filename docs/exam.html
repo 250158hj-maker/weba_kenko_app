@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kenko Log 定期試験</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans JP', sans-serif; }
+
+    .choice-input { display: none; }
+
+    .choice-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .choice-label:hover { border-color: #93c5fd; background: #eff6ff; }
+    .choice-input:checked + .choice-label {
+      border-color: #1a6ee6;
+      background: #eff8ff;
+    }
+
+    .choice-badge {
+      min-width: 1.75rem;
+      height: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #e2e8f0;
+      color: #475569;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .choice-input:checked + .choice-label .choice-badge {
+      background: #1a6ee6;
+      color: #fff;
+    }
+
+    pre { background:#1e293b; color:#e2e8f0; border-radius:0.75rem; padding:1rem; overflow-x:auto; font-size:0.85rem; line-height:1.6; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease both; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<!-- ヘッダー -->
+<header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-lg font-bold"
+           style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">K</div>
+      <div>
+        <p class="text-xs text-slate-400 leading-none">Kenko Log</p>
+        <h1 class="text-base font-bold leading-tight">定期試験</h1>
+      </div>
+    </div>
+
+    <!-- 進捗 -->
+    <div class="flex items-center gap-2 flex-1 max-w-xs">
+      <div class="flex-1 bg-slate-200 rounded-full h-2">
+        <div id="progress-bar" class="h-2 rounded-full transition-all duration-300"
+             style="background:linear-gradient(90deg,#1a6ee6,#22d3ee); width:0%"></div>
+      </div>
+      <span id="progress-text" class="text-xs text-slate-500 whitespace-nowrap">0 / 10</span>
+    </div>
+
+    <!-- 参考資料リンク -->
+    <div class="flex gap-2">
+      <a href="database.html" target="_blank"
+         class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:border-sky-300 hover:text-sky-700 hover:bg-sky-50 transition">
+        🗄️ DB定義
+      </a>
+      <a href="interfaces.html" target="_blank"
+         class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:border-sky-300 hover:text-sky-700 hover:bg-sky-50 transition">
+        🌐 IF一覧
+      </a>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-4xl mx-auto px-4 py-8 space-y-5">
+
+  <!-- 注意 -->
+  <div class="fade-up bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-sm text-amber-800 space-y-1">
+    <p class="font-bold">📋 注意事項</p>
+    <ul class="list-disc list-inside text-amber-700 mt-1 space-y-0.5">
+      <li>データベースは <code class="bg-amber-100 px-1 rounded">/admin/</code> の「セットアップを実行」で初期化できます。</li>
+      <li>AI 処理には <code class="bg-amber-100 px-1 rounded">env.php</code> の <code class="bg-amber-100 px-1 rounded">GEMINI_API_KEY</code> 設定が必要です。</li>
+    </ul>
+  </div>
+
+  <!-- 参考資料リンク (SP) -->
+  <div class="flex gap-3 sm:hidden">
+    <a href="database.html" target="_blank"
+       class="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 bg-white hover:border-sky-300 hover:text-sky-700 transition">
+      🗄️ DB定義
+    </a>
+    <a href="interfaces.html" target="_blank"
+       class="flex-1 flex items-center justify-center gap-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 bg-white hover:border-sky-300 hover:text-sky-700 transition">
+      🌐 IF一覧
+    </a>
+  </div>
+
+  <form id="exam-form" class="space-y-5">
+
+    <!-- Q1 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">1</span>
+        <p class="font-bold leading-relaxed">このアプリで利用する<strong class="text-blue-600 underline decoration-dotted">データベース名</strong>はどれですか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q1" id="q1-1" value="1"><label class="choice-label" for="q1-1"><span class="choice-badge">1</span>mysql</label></div>
+        <div><input class="choice-input" type="radio" name="q1" id="q1-2" value="2"><label class="choice-label" for="q1-2"><span class="choice-badge">2</span>127.0.0.1</label></div>
+        <div><input class="choice-input" type="radio" name="q1" id="q1-3" value="3"><label class="choice-label" for="q1-3"><span class="choice-badge">3</span>health_log</label></div>
+        <div><input class="choice-input" type="radio" name="q1" id="q1-4" value="4"><label class="choice-label" for="q1-4"><span class="choice-badge">4</span>kenko_log</label></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">2</span>
+        <p class="font-bold leading-relaxed">ログイン後に<strong class="text-blue-600 underline decoration-dotted">自動的に健康ダッシュボードページに移動する</strong>ことをなんと言いますか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q2" id="q2-1" value="1"><label class="choice-label" for="q2-1"><span class="choice-badge">1</span>リダイレクト</label></div>
+        <div><input class="choice-input" type="radio" name="q2" id="q2-2" value="2"><label class="choice-label" for="q2-2"><span class="choice-badge">2</span>セッション</label></div>
+        <div><input class="choice-input" type="radio" name="q2" id="q2-3" value="3"><label class="choice-label" for="q2-3"><span class="choice-badge">3</span>CSR</label></div>
+        <div><input class="choice-input" type="radio" name="q2" id="q2-4" value="4"><label class="choice-label" for="q2-4"><span class="choice-badge">4</span>SSR</label></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">3</span>
+        <p class="font-bold leading-relaxed">健康ダッシュボードページ（<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">dashboard/</code>）で、データベースとレンダリング処理の説明で正しいのはどれですか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q3" id="q3-1" value="1"><label class="choice-label" for="q3-1"><span class="choice-badge">1</span>PHPだけで処理している。</label></div>
+        <div><input class="choice-input" type="radio" name="q3" id="q3-2" value="2"><label class="choice-label" for="q3-2"><span class="choice-badge">2</span>JavaScriptだけで処理している。</label></div>
+        <div><input class="choice-input" type="radio" name="q3" id="q3-3" value="3"><label class="choice-label" for="q3-3"><span class="choice-badge">3</span>データベースはJavaScript、一部PHPでレンダリングしている。</label></div>
+        <div><input class="choice-input" type="radio" name="q3" id="q3-4" value="4"><label class="choice-label" for="q3-4"><span class="choice-badge">4</span>データベースはPHP、一部JavaScriptでレンダリングしている。</label></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">4</span>
+        <p class="font-bold leading-relaxed">健康管理の一覧ページ（<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">health/</code>）で、データベースとレンダリング処理の説明で正しいのはどれですか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q4" id="q4-1" value="1"><label class="choice-label" for="q4-1"><span class="choice-badge">1</span>PHPだけで処理している。</label></div>
+        <div><input class="choice-input" type="radio" name="q4" id="q4-2" value="2"><label class="choice-label" for="q4-2"><span class="choice-badge">2</span>JavaScriptだけで処理している。</label></div>
+        <div><input class="choice-input" type="radio" name="q4" id="q4-3" value="3"><label class="choice-label" for="q4-3"><span class="choice-badge">3</span>データベースはJavaScript、一部PHPでレンダリングしている。</label></div>
+        <div><input class="choice-input" type="radio" name="q4" id="q4-4" value="4"><label class="choice-label" for="q4-4"><span class="choice-badge">4</span>データベースはPHP、一部JavaScriptでレンダリングしている。</label></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">5</span>
+        <p class="font-bold leading-relaxed">トップページの「日々の健康を、もっと楽しく、かんたんに記録。」を表示しているファイルはどれですか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q5" id="q5-1" value="1"><label class="choice-label" for="q5-1"><span class="choice-badge">1</span>index.php</label></div>
+        <div><input class="choice-input" type="radio" name="q5" id="q5-2" value="2"><label class="choice-label" for="q5-2"><span class="choice-badge">2</span>components/nav.php</label></div>
+        <div><input class="choice-input" type="radio" name="q5" id="q5-3" value="3"><label class="choice-label" for="q5-3"><span class="choice-badge">3</span>components/message.php</label></div>
+        <div><input class="choice-input" type="radio" name="q5" id="q5-4" value="4"><label class="choice-label" for="q5-4"><span class="choice-badge">4</span>components/top/hero_left.php</label></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">6</span>
+        <p class="font-bold leading-relaxed">アクティビティ記録画面で「種類」が <code class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded text-sm border border-red-200">Warning:</code> になっています。どのファイルを修正しますか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q6" id="q6-1" value="1"><label class="choice-label" for="q6-1"><span class="choice-badge">1</span>register/index.php</label></div>
+        <div><input class="choice-input" type="radio" name="q6" id="q6-2" value="2"><label class="choice-label" for="q6-2"><span class="choice-badge">2</span>health/index.php</label></div>
+        <div><input class="choice-input" type="radio" name="q6" id="q6-3" value="3"><label class="choice-label" for="q6-3"><span class="choice-badge">3</span>activity/index.php</label></div>
+        <div><input class="choice-input" type="radio" name="q6" id="q6-4" value="4"><label class="choice-label" for="q6-4"><span class="choice-badge">4</span>exercise/index.php</label></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">7</span>
+        <p class="font-bold leading-relaxed">そのファイルで、<strong class="text-blue-600 underline decoration-dotted">Warning 箇所をどう修正</strong>しますか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q7" id="q7-1" value="1"><label class="choice-label" for="q7-1"><span class="choice-badge">1</span><code>$row['type']</code></label></div>
+        <div><input class="choice-input" type="radio" name="q7" id="q7-2" value="2"><label class="choice-label" for="q7-2"><span class="choice-badge">2</span><code>$row['category']</code></label></div>
+        <div><input class="choice-input" type="radio" name="q7" id="q7-3" value="3"><label class="choice-label" for="q7-3"><span class="choice-badge">3</span><code>$row['activity_type']</code></label></div>
+        <div><input class="choice-input" type="radio" name="q7" id="q7-4" value="4"><label class="choice-label" for="q7-4"><span class="choice-badge">4</span><code>$row['exercise_type']</code></label></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">8</span>
+        <p class="font-bold leading-relaxed">健康管理の「健康記録を追加」画面では、登録するとSQLエラーになります。<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">health/add.php</code> の <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">insert()</code> で、SQLの「<strong class="text-blue-600">xxxx</strong>」の部分はつぎのどれですか？</p>
+      </div>
+      <pre class="ml-11 text-xs"><code>$sql = "INSERT INTO xxxx (user_id, weight, heart_rate, systolic, diastolic, recorded_at)
+        VALUES (:user_id, :weight, :heart_rate, :systolic, :diastolic, :recorded_at)";</code></pre>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q8" id="q8-1" value="1"><label class="choice-label" for="q8-1"><span class="choice-badge">1</span>healths</label></div>
+        <div><input class="choice-input" type="radio" name="q8" id="q8-2" value="2"><label class="choice-label" for="q8-2"><span class="choice-badge">2</span>health_records</label></div>
+        <div><input class="choice-input" type="radio" name="q8" id="q8-3" value="3"><label class="choice-label" for="q8-3"><span class="choice-badge">3</span>exercises</label></div>
+        <div><input class="choice-input" type="radio" name="q8" id="q8-4" value="4"><label class="choice-label" for="q8-4"><span class="choice-badge">4</span>exercise_records</label></div>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">9</span>
+        <p class="font-bold leading-relaxed">健康管理の編集画面では「該当する記録が見つかりません。」のエラーになります。<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">health/edit.php</code> の <code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">$id</code> で正しいのはどれですか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q9" id="q9-1" value="1"><label class="choice-label" for="q9-1"><span class="choice-badge">1</span><code>$_GET['id']</code></label></div>
+        <div><input class="choice-input" type="radio" name="q9" id="q9-2" value="2"><label class="choice-label" for="q9-2"><span class="choice-badge">2</span><code>$_POST['id']</code></label></div>
+        <div><input class="choice-input" type="radio" name="q9" id="q9-3" value="3"><label class="choice-label" for="q9-3"><span class="choice-badge">3</span><code>$_GET['health_id']</code></label></div>
+        <div><input class="choice-input" type="radio" name="q9" id="q9-4" value="4"><label class="choice-label" for="q9-4"><span class="choice-badge">4</span><code>$_POST['health_id']</code></label></div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#1a6ee6,#22d3ee)">10</span>
+        <p class="font-bold leading-relaxed">アクティビティの「アクティビティ記録を追加」画面で、登録すると「不正なリクエストです。」のエラーになります。なぜですか？</p>
+      </div>
+      <div class="space-y-2 pl-11">
+        <div><input class="choice-input" type="radio" name="q10" id="q10-1" value="1"><label class="choice-label" for="q10-1"><span class="choice-badge">1</span>データが未入力で登録している</label></div>
+        <div><input class="choice-input" type="radio" name="q10" id="q10-2" value="2"><label class="choice-label" for="q10-2"><span class="choice-badge">2</span>GETリクエストで登録している</label></div>
+        <div><input class="choice-input" type="radio" name="q10" id="q10-3" value="3"><label class="choice-label" for="q10-3"><span class="choice-badge">3</span>CSRF によるなりすまし攻撃</label></div>
+        <div><input class="choice-input" type="radio" name="q10" id="q10-4" value="4"><label class="choice-label" for="q10-4"><span class="choice-badge">4</span>ユーザセッションが取得できない</label></div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- 記述問題 -->
+  <div class="flex items-center gap-4 py-2">
+    <div class="flex-1 h-px bg-slate-300"></div>
+    <span class="text-xs font-bold text-slate-400 tracking-widest">記述問題</span>
+    <div class="flex-1 h-px bg-slate-300"></div>
+  </div>
+
+  <div class="space-y-5">
+
+    <!-- Q11 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#64748b,#94a3b8)">11</span>
+        <p class="font-bold leading-relaxed">健康管理ページの「CSVダウンロード」をリクエストするとエラーになります。CSVダウンロードできるようプログラム修正し、<strong class="text-blue-600 underline decoration-dotted">CSVの中身をコピー＆ペースト</strong>して回答してください。</p>
+      </div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#64748b,#94a3b8)">12</span>
+        <p class="font-bold leading-relaxed">健康管理の「AI分析」を実行するとエラーになります。<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">js/health_ai.js</code> の API URLを修正してAI分析してください。回答は、AI履歴で<strong class="text-blue-600 underline decoration-dotted">CSVダウンロードしたファイルの中身をコピー＆ペースト</strong>してください。</p>
+      </div>
+    </div>
+
+    <!-- Q13 -->
+    <div class="fade-up bg-white border border-slate-200 rounded-2xl p-6">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+              style="background:linear-gradient(135deg,#64748b,#94a3b8)">13</span>
+        <p class="font-bold leading-relaxed">アクティビティの「アクティビティグラフ」はAPIエラーでグラフ表示できません。<code class="bg-slate-100 px-1.5 py-0.5 rounded text-sm">js/activity_chart.js</code> の API URLを修正してグラフ表示してください。回答は<strong class="text-blue-600 underline decoration-dotted">ダウンロードした画像をアップロード</strong>してください。</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: { fontFamily: { sans: ['"Noto Sans JP"', 'sans-serif'] } }
+    }
+  }
+
+  const TOTAL = 10;
+
+  document.querySelectorAll('.choice-input').forEach(input => {
+    input.addEventListener('change', () => {
+      const answered = new Set(
+        [...document.querySelectorAll('.choice-input:checked')].map(el => el.name)
+      ).size;
+      const pct = Math.round(answered / TOTAL * 100);
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = answered + ' / ' + TOTAL;
+    });
+  });
+</script>
+</body>
+</html>
