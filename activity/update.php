@@ -77,5 +77,5 @@ function updateActivity(int $id, int $userId, array $posts): void
     $stmt->execute($data);
 
     // edit.php にリダイレクト
-    header('Location: ' . BASE_URL . "activity/edit.php?id={$id}");
+    header('Location: ' . BASE_URL . "activity/");
 }
