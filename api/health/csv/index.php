@@ -12,12 +12,17 @@ if (empty($_SESSION['user'])) {
 
 // データベース接続
 $pdo = Database::getInstance();
-// TODO: SQLクエリを作成 
 // 1. 選択カラム: recorded_at, weight, heart_rate, systolic, diastolic
 // 2. recorded_atの降順
 // 3. ユーザーIDで絞り込み
 // 4. 30件に制限
-$sql = "";
+$sql = "
+    SELECT recorded_at, weight, heart_rate, systolic, diastolic
+    FROM health_records
+    WHERE user_id = :user_id
+    ORDER BY recorded_at DESC
+    LIMIT 30
+";
 
 // プリペアドステートメントを作成して実行
 $stmt = $pdo->prepare($sql);
