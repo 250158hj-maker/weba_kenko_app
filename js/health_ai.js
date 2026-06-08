@@ -41,7 +41,7 @@ btn.addEventListener("click", async () => {
   btn.disabled = true;
 
   try {
-    const url = "api/health/ai";
+    const url = "api/health/ai/";
     const response = await fetch(url);
     if (!response || !response.ok) {
       showMessage("API リクエストに失敗しました。");
