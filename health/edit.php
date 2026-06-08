@@ -9,8 +9,7 @@ if (empty($_SESSION['user'])) {
     exit;
 }
 
-// TODO: GETリクエストから id を取得
-$id = null;
+$id = $_GET['id'];
 
 // id を渡してレコードを取得
 $record = find($id, (int) $_SESSION['user']['id']);
@@ -30,7 +29,6 @@ function find($id, int $userId)
 {
     // データベース接続
     $pdo = Database::getInstance();
-    // TODO: health_recordsテーブルから該当レコードを取得
     $sql = "SELECT * FROM health_records WHERE id = :id AND user_id = :user_id";
     // プリペアドステートメントを作成
     $stmt = $pdo->prepare($sql);
