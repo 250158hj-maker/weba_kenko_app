@@ -7,7 +7,6 @@ Chart.register(window["chartjs-plugin-annotation"]);
 renderCharts();
 
 async function fetchActivityData() {
-  // TODO: APIのURLを指定
   const url = "api/activity/get/";
   // APIからデータを取得
   const res = await fetch(url);
